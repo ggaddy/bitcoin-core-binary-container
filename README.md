@@ -1,5 +1,5 @@
 # bitcoin-core-binary-container
-container image of bitcoin core
+Container image of bitcoin core. Tested to work with podman on Fedora and docker on OSX.
 
 ## build from Dockerfile
 `podman build -t bitcoin-binary-container:latest .`
