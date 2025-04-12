@@ -1,0 +1,11 @@
+## bitcoin-binary-container
+
+# build
+podman build -t bitcoin-binary-container:latest .
+
+# once to create the directory we store the files on the host
+mkdir -p /storage/bitcoin
+
+# run with host /storage/bitcoin mounted inside container as /root/.bitcoin (default directory for blockchain files)
+podman run -dit -v /storage/bitcoin:/root/.bitcoin --name=bitcoin bitcoin-binary-container:latest
+
