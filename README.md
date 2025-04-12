@@ -8,7 +8,7 @@ Container image of bitcoin core. Tested to work with podman on Fedora and docker
 `podman tag bitcoin-binary-container:latest bitcoin-binary-container:28.1`
 
 ## run
-`podman run -dit --name=bitcoin bitcoin-binary-container`
+`podman run -dit -v /storage/bitcoin:/root/.bitcoin --name=bitcoin bitcoin-binary-container:latest`
 
 ## watch logs from bitcoind
-`podman exec -it bitcoin bash -c "tail -f ~/.bitcoin/debug.log"`
+`podman logs -f bitocin`
