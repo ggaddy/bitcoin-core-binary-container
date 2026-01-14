@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: bitcoind
+  labels:
+    app: bitcoind
+spec:
+  type: ClusterIP
+  selector:
+    app: bitcoind
+  ports:
+    - name: p2p
+      port: 8333
+      targetPort: 8333
+      protocol: TCP
+    - name: rpc
+      port: 8332
+      targetPort: 8332
+      protocol: TCP
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: bitcoind
+  labels:
+    app: bitcoind
+spec:
+  serviceName: bitcoind
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bitcoind
+  template:
+    metadata:
+      labels:
+        app: bitcoind
+    spec:
+      terminationGracePeriodSeconds: 600
+      securityContext:
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+      containers:
+        - name: bitcoind
+          image: docker.io/agaddy/bitcoin-core-binary:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: p2p
+              containerPort: 8333
+            - name: rpc
+              containerPort: 8332
+          args:
+            - "-datadir=/home/bitcoind/.bitcoin"
+            - "-prune=10000"
+            - "-printtoconsole"
+          volumeMounts:
+            - name: bitcoin-data
+              mountPath: /home/bitcoind/.bitcoin
+          readinessProbe:
+            tcpSocket:
+              port: 8333
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8333
+            initialDelaySeconds: 60
+            periodSeconds: 20
+
+  volumeClaimTemplates:
+    - metadata:
+        name: bitcoin-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 50Gi
+        # storageClassName: standard
